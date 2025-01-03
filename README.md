@@ -8,7 +8,7 @@ There are three ways of using this program:
     - 6 Decks in the shoe
     - 1000 jetons starting budget
     - Blackjack plays 2:3
-    - Dealer must stay on 21
+    - Dealer must stay on 17
 
 2. Multiple command line argumets (use of flags) can be specified, to modify the parameters of the game
     - Specify number of players: Control 1-7 players at the same table
