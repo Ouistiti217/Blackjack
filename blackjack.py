@@ -29,9 +29,16 @@ def main():
     print (discards)
     print(len(shoe))
 
-    # while len(shoe) > 0:
+    print()
+    player = Player("0", 1000)
+    player.hit()
+    player.hit()
+    print(player.get_hand_value())
+
+    # while len(shoe) > 20:
     #     print(len(shoe), " Cards in play")
     #     print(draw())
+
 
 
 # return a random card from the shoe
@@ -53,13 +60,16 @@ def cut(index):
 
 
 class Player:
-    def __init__(self, id :int, hand :list, balance = 5000):
+    def __init__(self, id :int, balance = 5000):
         self._id = id
-        self._hand = hand
+        self._hand = []
         if balance <= 0:
             raise ValueError(f"Player {self._id} is bankrot.")
         else:
             self._balance = balance
+
+    def __str__(self):
+        return f"Player {self._id} has a balance of {self._balance} with the hand: {self._hand}"
 
     def bet(self, amount :int):
         if amount <= self._balance:
@@ -67,17 +77,51 @@ class Player:
         else:
             raise ValueError(f"Player {self._id} has insufficient funds for this bet.")
 
+    # draw another card
     def hit(self):
         self._hand.append(draw())
-        turn += 1
+        #turn += 1
 
+    # pass on drawing (should exempt you from drawing again for the round)
     def stay(self):
-        turn += 1
+        ...
+        #turn += 1
     
+    # return a list of the cards in the players hand
     @property
     def get_hand(self):
         return self._hand
-    
+
+    # calculate and return the total value of the players hand as a list. 
+    # The normal value is at index 0. If there are aces, all unique possible values will be returned as a set.
+    @property
+    def get_hand_value(self):
+        values = {"Ace": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "Jack": 10, "Queen": 10, "King": 10}
+        hand = self.get_hand
+        possible_values = [0]
+        for card in hand:
+            if card[ranks] == "Ace":
+                new_values = []
+                for value in possible_values:
+                    new_values.append(value + 1)
+                    new_values.append(value + 11)
+                possible_values = new_values
+            else:
+                possible_values = [value + values[card[ranks]] for value in possible_values]
+            return sorted(set(possible_values))
+
+
+    # return the number of aces the player has in their hand
+    @property
+    def num_aces(self):
+        num_aces = 0
+        for card in self.get_hand():
+            if card[ranks] == "Ace":
+                num_aces += 1
+        return num_aces
+
+
+    # return the amount of chips the player has on the bank
     @property
     def get_balance(self):
         return self._balance
