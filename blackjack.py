@@ -4,14 +4,16 @@ import random
 ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
 
+discards = []
+shoe = []
+players = []
+
 
 def main(num_decks = None, num_players = None):
     # initialization of the number of decks at the table + shuffling
     if num_decks is None:
         num_decks = int(input("How many decks are in play? "))
         num_cards = num_decks * 52
-        discards = []
-        shoe = []
         for deck in range(num_decks):
             for suit in suits:
                 for rank in ranks:
@@ -20,7 +22,6 @@ def main(num_decks = None, num_players = None):
     # initialization of the number of players at the table
     if num_players is None:
         num_players = int(input("How many players are at the table? "))
-        players = []
         for i in range(num_players):
             player = Player(id = i)
             players.append(player)
@@ -40,18 +41,17 @@ def main(num_decks = None, num_players = None):
     print (discards)
     print(len(shoe))
 
-    print()
-    player = Player("0", 1000)
-    player.hit()
-    player.hit()
-    print(player.get_hand)
-    print(player.get_hand_values)
-    print(player.get_best_hand_value())
+    players[3].set
+    players[3].hit()
+    for player in players:
+        print(player)
+        print(player.get_hand)
+        print(player.get_hand_values)
+        print(player.get_best_hand_value())
 
     # while len(shoe) > 20:
     #     print(len(shoe), " Cards in play")
     #     print(draw())
-
 
 
 # return a random card from the shoe
@@ -69,7 +69,6 @@ def cut(index):
     for card in shoe[:index]:
         discards.append(card)
     shoe = shoe[index:]
-
 
 
 class Player:
@@ -145,6 +144,12 @@ class Player:
     @property
     def get_balance(self):
         return self._balance
+    
+    def set_balance(self, value):
+        if value < 0:
+            raise ValueError(f"Balance of player {self._id} must not be negative.")
+        else:
+            self._balance = value
 
 
 if __name__ == "__main__":

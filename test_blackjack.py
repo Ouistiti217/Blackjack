@@ -16,3 +16,18 @@ def test_player_init():
     assert player.get_balance == 1000
     assert len(player.get_hand) == 0
 
+
+def test_set_balance():
+    player = Player(0, 3000)
+    
+    # set a valid balance
+    player.set_balance(7000)
+    assert player.get_balance == 7000
+ 
+    # 0 should be a valid balance
+    player.set_balance(0)
+    assert player.get_balance == 0
+    
+    # setting an invalid balance should raise a ValueError
+    with pytest.raises(ValueError):
+        player.set_balance(-1000)
