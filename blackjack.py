@@ -33,7 +33,9 @@ def main():
     player = Player("0", 1000)
     player.hit()
     player.hit()
-    print(player.get_hand_value())
+    print(player.get_hand)
+    print(player.get_hand_values)
+    print(player.get_best_hand_value())
 
     # while len(shoe) > 20:
     #     print(len(shoe), " Cards in play")
@@ -95,28 +97,36 @@ class Player:
     # calculate and return the total value of the players hand as a list. 
     # The normal value is at index 0. If there are aces, all unique possible values will be returned as a set.
     @property
-    def get_hand_value(self):
+    def get_hand_values(self):
         values = {"Ace": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "Jack": 10, "Queen": 10, "King": 10}
         hand = self.get_hand
         possible_values = [0]
         for card in hand:
-            if card[ranks] == "Ace":
+            if card["rank"] == "Ace":
                 new_values = []
                 for value in possible_values:
                     new_values.append(value + 1)
                     new_values.append(value + 11)
                 possible_values = new_values
             else:
-                possible_values = [value + values[card[ranks]] for value in possible_values]
-            return sorted(set(possible_values))
-
+                possible_values = [value + values[card["rank"]] for value in possible_values]
+        return sorted(set(possible_values))
+    
+    # return the highest value which isn't over 21. If there is none, the player is most likely bust.
+    def get_best_hand_value(self):
+        best_value = None
+        for value in self.get_hand_values:
+            if value <= 21:
+                if best_value is None or value > best_value:
+                    best_value = value
+        return best_value
 
     # return the number of aces the player has in their hand
     @property
     def num_aces(self):
         num_aces = 0
         for card in self.get_hand():
-            if card[ranks] == "Ace":
+            if card[rank] == "Ace":
                 num_aces += 1
         return num_aces
 
