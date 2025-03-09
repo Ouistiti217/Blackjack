@@ -11,7 +11,7 @@ There are three ways of using this program:
     - Blackjack pays 2:3
     - Dealer must stay on 17
 
-    'python blackjack.py'
+    `python blackjack.py`
 
 2. Multiple command line argumets (use of flags) can be specified, to modify the parameters of the game
     - Specify number of players: Control 1-7 players at the same table
