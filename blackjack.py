@@ -4,23 +4,31 @@ import random
 ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
 
-# Create the shoe (all cards still in the game) and shuffle it
-discards = []
-shoe = []
-for deck in range(num_decks):
-    for suit in suits:
-        for rank in ranks:
-            shoe.append({"rank": rank, "suit": suit, "deck": deck})
-random.shuffle(shoe)
-    
 
 def main(num_decks = None, num_players = None):
-    # initialization of the number of decks and players at the table
+    # initialization of the number of decks at the table + shuffling
     if num_decks is None:
         num_decks = int(input("How many decks are in play? "))
         num_cards = num_decks * 52
+        discards = []
+        shoe = []
+        for deck in range(num_decks):
+            for suit in suits:
+                for rank in ranks:
+                    shoe.append({"rank": rank, "suit": suit, "deck": deck})
+                    random.shuffle(shoe)
+    # initialization of the number of players at the table
     if num_players is None:
         num_players = int(input("How many players are at the table? "))
+        players = []
+        for i in range(num_players):
+            player = Player(id = i)
+            players.append(player)
+
+    for player in players:
+        print (player)
+
+    
         
     print(shoe)
     print(discards)
@@ -65,7 +73,7 @@ def cut(index):
 
 
 class Player:
-    def __init__(self, id :int, balance = 5000):
+    def __init__(self, id :int, balance = 1000):
         self._id = id
         self._hand = []
         if balance <= 0:
@@ -132,7 +140,6 @@ class Player:
             if card[rank] == "Ace":
                 num_aces += 1
         return num_aces
-
 
     # return the amount of chips the player has on the bank
     @property
