@@ -10,10 +10,38 @@ players = []
 
 
 def main(num_decks = None, num_players = None):
+    # setting game parameters through cmd-line arguments
+    if len(sys.argv) == 1:  # default settings
+        num_jetons = 1000
+        num_players = 1
+        num_decks = 6
+        blackjack_payout = "2:3"
+        cut_index = 0
+    elif len(sys.argv) > 6:
+        sys.exit("Too many command-line arguments")
+    else:
+        num_players = int(sys.argv[1])
+        try:
+            num_jetons = int(sys.argv[2])
+        except IndexError:
+            num_jetons = 1000
+        try:
+            num_decks = int(sys.argv[3])
+        except IndexError:
+            num_decks = 6
+        try:
+            blackjack_payout = sys.argv[4]
+        except IndexError:
+            blackjack_payout = "2:3"
+        try:
+            cut_index = int(sys.argv[5])
+        except IndexError:
+            cut_index = 0
+
+
     # initialization of the number of decks at the table + shuffling
     if num_decks is None:
         num_decks = int(input("How many decks are in play? "))
-        num_cards = num_decks * 52
         for deck in range(num_decks):
             for suit in suits:
                 for rank in ranks:
@@ -26,32 +54,46 @@ def main(num_decks = None, num_players = None):
             player = Player(id = i)
             players.append(player)
 
-    for player in players:
-        print (player)
+    num_cards = int(num_decks) * 52
 
-    
-        
-    print(shoe)
-    print(discards)
-    turn = 0
-    cut(4)
-    print(discards)
-    draw()
-    draw()
-    print (discards)
-    print(len(shoe))
 
-    players[3].set
-    players[3].hit()
-    for player in players:
-        print(player)
-        print(player.get_hand)
-        print(player.get_hand_values)
-        print(player.get_best_hand_value())
+    if int(num_players) < 1:
+        sys.exit("Too few players for a nice game of Blackjack")
+    print("\n---------------Game Details---------------")
+    if num_players == 1:
+        print (f"Player starts with {num_jetons} jetons")
+    else:
+        print (f"{num_players} players at the table\nEvery player starts with {num_jetons} jetons")
+    print(f"{num_decks} decks in the shoe ({num_cards} cards) \nBlackjack pays {blackjack_payout} \nDealer must stay on 17")
+    if (cut_index != 0):
+        print(f"The shoe will be cut at index {cut_index} after shuffling")
+    print("------------------------------------------")
 
-    # while len(shoe) > 20:
-    #     print(len(shoe), " Cards in play")
-    #     print(draw())
+    # for player in players:
+    #     print (player)
+    # 
+    #        
+    # print(shoe)
+    # print(discards)
+    # turn = 0
+    # cut(4)
+    # print(discards)
+    # draw()
+    # draw()
+    # print (discards)
+    # print(len(shoe))
+
+
+    # players[3].hit()
+    # for player in players:
+    #     print(player)
+    #     print(player.get_hand)
+    #     print(player.get_hand_values)
+    #     print(player.get_best_hand_value())
+
+    # # while len(shoe) > 20:
+    # #     print(len(shoe), " Cards in play")
+    # #     print(draw())
 
 
 # return a random card from the shoe
@@ -103,6 +145,15 @@ class Player:
     @property
     def get_hand(self):
         return self._hand
+    
+    def set_hand(self, new_hand):
+        if not isinstance(new_hand, list):
+            raise ValueError("The new hand must be a list of cards.")
+        for card in new_hand:
+            if not isinstance(card, dict) or not {"rank", "suit", "deck"}.issubset(card.keys()):
+                raise ValueError ("Each card in the new hand must be a dict with 'rank', 'suit', 'deck'.")
+        self._hand = new_hand
+
 
     # calculate and return the total value of the players hand as a list. 
     # The normal value is at index 0. If there are aces, all unique possible values will be returned as a set.
@@ -122,7 +173,7 @@ class Player:
                 possible_values = [value + values[card["rank"]] for value in possible_values]
         return sorted(set(possible_values))
     
-    # return the highest value which isn't over 21. If there is none, the player is most likely bust.
+    # return the highest value which isn't over 21. return None if no valid value exists.
     def get_best_hand_value(self):
         best_value = None
         for value in self.get_hand_values:
@@ -130,15 +181,15 @@ class Player:
                 if best_value is None or value > best_value:
                     best_value = value
         return best_value
+    
+    # return true if the players hand value exceeds 21 and false if the player is not bust.
+    def is_bust(self):
+        best_hand_value = self.get_best_hand_value()
+        if best_hand_value is None or best_hand_value > 21:
+            return True
+        else:
+            return False
 
-    # return the number of aces the player has in their hand
-    @property
-    def num_aces(self):
-        num_aces = 0
-        for card in self.get_hand():
-            if card[rank] == "Ace":
-                num_aces += 1
-        return num_aces
 
     # return the amount of chips the player has on the bank
     @property
