@@ -4,10 +4,6 @@ import random
 ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
 
-num_decks = int(input("How many decks are in play? "))
-num_cards = num_decks * 52
-num_players = int(input("How many players are at the table? "))
-
 # Create the shoe (all cards still in the game) and shuffle it
 discards = []
 shoe = []
@@ -18,7 +14,14 @@ for deck in range(num_decks):
 random.shuffle(shoe)
     
 
-def main():
+def main(num_decks = None, num_players = None):
+    # initialization of the number of decks and players at the table
+    if num_decks is None:
+        num_decks = int(input("How many decks are in play? "))
+        num_cards = num_decks * 52
+    if num_players is None:
+        num_players = int(input("How many players are at the table? "))
+        
     print(shoe)
     print(discards)
     turn = 0
