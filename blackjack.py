@@ -1,8 +1,11 @@
 import sys
 import random
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
 
-ranks = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
-suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
+ranks = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"]
+suits = ["hearts", "diamonds", "clubs", "spades"]
 
 discards = []
 shoe = []
@@ -44,6 +47,8 @@ def main(num_decks = None, num_players = None):
     
     if int(num_players) < 1:
         sys.exit("Too few players for a nice game of Blackjack")
+    elif int(num_players) > 7:
+        sys.exit("The table does not accommodate more than seven players")
 
     # initialization of the number of decks at the table + shuffling
     for deck in range(num_decks):
@@ -72,13 +77,49 @@ def main(num_decks = None, num_players = None):
     print("------------------------------------------")
 
 
+    # Create a window wiht tkinter
+    root = create_window()
+
+    # Change the background colour to a random value
+    def change_bg():
+        root.configure(bg = str("#{:06x}".format(random.randint(0, 0xFFFFFF))))
+
+    label = ttk.Label(root, text="Moinsen", font=("Arial", 16, "bold"))
+    label.pack(pady=100)
+
+    image = Image.open(f"PNG-cards-1.3\\ace_of_clubs.png")
+    resized_img = image.resize((250, 381))
+    tk_image = ImageTk.PhotoImage(resized_img)
+    image_label = tk.Label(root, image = tk_image)
+    image_label.place(x=1000, y=50)
+
+
+
+    button = tk.Button(
+        root, 
+        text = "Drück mich",
+        bg = "darkred",
+        fg = "blue",
+        relief = "raised",
+        command = change_bg
+    )
+    button.pack()
+
+    root.mainloop()
+
+
+
+
+
+
+
     # Gameloop
-    while (True):
-        for i in range(num_players):
-            if (players[i].is_bust() == False):
-                print (f"Hui{i}")
-            else: 
-                print (f"Sad{i}")
+    #while (True):
+    #    for i in range(num_players):
+    #        if (players[i].is_bust() == True):
+    #            print (f"Hui{i}")
+    #        else: 
+    #            print (f"Sad{i}")
 
 
 
@@ -232,6 +273,14 @@ class Dealer(Entity):
                 player._hand.append(draw())
             self._hand.append(draw())
 
+
+# tkinter methods
+def create_window():
+    root = tk.Tk()
+    root.title("Blackjack")
+    root.geometry("1080x720")
+    root.configure(bg ="darkgreen")
+    return root
 
 
 
