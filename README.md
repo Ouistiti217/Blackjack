@@ -20,7 +20,7 @@ There are three ways of using this program:
     - Specify the payout ratio of Blackjack
     - Specify the index at which the shoe should be cut after shuffeling (essentially taking this many cards out of the game)
 
-        By entering `python blackjack.py 2 5000 1 "2:3" 12` into the command-line, you would be starting a game with two players, each starting with 5000 jetons. The game would be played with one deck and blackjack pays out 2:3. In this example the deck would also be cut at index 12.
+        By entering `python blackjack.py 2 5000 1 "2:3" 12` into the command-line, you would be starting a game with two players, each begining with 5000 jetons. The game would be played with one deck and blackjack pays out 2:3. In this example the deck would also be cut at index 12.
 
         By entering `python blackjack.py 4 3000 8` into the command-line, you would be starting a game with four players, each starting with 3000 jetons and a shoe containing eight decks. The unspecified settings will revert to their default as mentioned in the first way, without cutting the deck. This is possible for any amount of argumnets between 1 and 5, while maintaining said order.
 

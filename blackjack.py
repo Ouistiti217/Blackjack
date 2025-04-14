@@ -7,6 +7,7 @@ suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
 discards = []
 shoe = []
 players = []
+dealer_hand = []
 
 
 def main(num_decks = None, num_players = None):
@@ -20,45 +21,46 @@ def main(num_decks = None, num_players = None):
     elif len(sys.argv) > 6:
         sys.exit("Too many command-line arguments")
     else:
-        num_players = int(sys.argv[1])
         try:
-            num_jetons = int(sys.argv[2])
-        except IndexError:
-            num_jetons = 1000
-        try:
-            num_decks = int(sys.argv[3])
-        except IndexError:
-            num_decks = 6
-        try:
-            blackjack_payout = sys.argv[4]
-        except IndexError:
-            blackjack_payout = "2:3"
-        try:
-            cut_index = int(sys.argv[5])
-        except IndexError:
-            cut_index = 0
-
+            num_players = int(sys.argv[1])
+            try:
+                num_jetons = int(sys.argv[2])
+            except IndexError:
+                num_jetons = 1000
+            try:
+                num_decks = int(sys.argv[3])
+            except IndexError:
+                num_decks = 6
+            try:
+                blackjack_payout = sys.argv[4]
+            except IndexError:
+                blackjack_payout = "2:3"
+            try:
+                cut_index = int(sys.argv[5])
+            except IndexError:
+                cut_index = 0
+        except ValueError:
+            sys.exit("Command-line arguments need to be enered in this order: int(num_players) int(num_jetons) int(num_decks) str(blackjack_payout e.g. \"2:3\") int(cut_index)")
+    
+    if int(num_players) < 1:
+        sys.exit("Too few players for a nice game of Blackjack")
 
     # initialization of the number of decks at the table + shuffling
-    if num_decks is None:
-        num_decks = int(input("How many decks are in play? "))
-        for deck in range(num_decks):
-            for suit in suits:
-                for rank in ranks:
-                    shoe.append({"rank": rank, "suit": suit, "deck": deck})
-                    random.shuffle(shoe)
+    for deck in range(num_decks):
+        for suit in suits:
+            for rank in ranks:
+                shoe.append({"rank": rank, "suit": suit, "deck": deck})
+                random.shuffle(shoe)
     # initialization of the number of players at the table
-    if num_players is None:
-        num_players = int(input("How many players are at the table? "))
-        for i in range(num_players):
-            player = Player(id = i)
-            players.append(player)
-
+    for i in range(num_players):
+        player = Player(id = i)
+        players.append(player)
+    # initialize the dealer
+    dealer = Dealer()
+    
     num_cards = int(num_decks) * 52
 
 
-    if int(num_players) < 1:
-        sys.exit("Too few players for a nice game of Blackjack")
     print("\n---------------Game Details---------------")
     if num_players == 1:
         print (f"Player starts with {num_jetons} jetons")
@@ -69,39 +71,40 @@ def main(num_decks = None, num_players = None):
         print(f"The shoe will be cut at index {cut_index} after shuffling")
     print("------------------------------------------")
 
+
+    # Gameloop
+    while (True):
+        for i in range(num_players):
+            if (players[i].is_bust() == False):
+                print (f"Hui{i}")
+            else: 
+                print (f"Sad{i}")
+
+
+
+
+
     # for player in players:
-    #     print (player)
+        # print (player)
     # 
-    #        
-    # print(shoe)
-    # print(discards)
-    # turn = 0
-    # cut(4)
-    # print(discards)
-    # draw()
-    # draw()
+    # print (shoe)
+    # dealer = Dealer()
+    # print (dealer)
+    # dealer.deal()
+    # for player in players:
+        # print (player)
+    # print (dealer)
+           
+    
     # print (discards)
     # print(len(shoe))
-
-
     # players[3].hit()
-    # for player in players:
-    #     print(player)
-    #     print(player.get_hand)
-    #     print(player.get_hand_values)
-    #     print(player.get_best_hand_value())
-
+    
     # # while len(shoe) > 20:
     # #     print(len(shoe), " Cards in play")
     # #     print(draw())
 
 
-# return a random card from the shoe
-def draw():
-    choice = random.choice(shoe)
-    shoe.remove(choice)
-    discards.append(choice)
-    return choice
 
 
 # cutting the shoe at a specified index, essentially discarding this amount of cards
@@ -112,36 +115,19 @@ def cut(index):
         discards.append(card)
     shoe = shoe[index:]
 
+# return a random card from the shoe
+def draw():
+    choice = random.choice(shoe)
+    shoe.remove(choice)
+    discards.append(choice)
+    return choice
 
-class Player:
-    def __init__(self, id :int, balance = 1000):
-        self._id = id
-        self._hand = []
-        if balance <= 0:
-            raise ValueError(f"Player {self._id} is bankrot.")
-        else:
-            self._balance = balance
 
-    def __str__(self):
-        return f"Player {self._id} has a balance of {self._balance} with the hand: {self._hand}"
+class Entity:
+    def __init__(self):
+        pass
 
-    def bet(self, amount :int):
-        if amount <= self._balance:
-            return amount
-        else:
-            raise ValueError(f"Player {self._id} has insufficient funds for this bet.")
-
-    # draw another card
-    def hit(self):
-        self._hand.append(draw())
-        #turn += 1
-
-    # pass on drawing (should exempt you from drawing again for the round)
-    def stay(self):
-        ...
-        #turn += 1
-    
-    # return a list of the cards in the players hand
+    # return a list of the cards in hand
     @property
     def get_hand(self):
         return self._hand
@@ -155,7 +141,7 @@ class Player:
         self._hand = new_hand
 
 
-    # calculate and return the total value of the players hand as a list. 
+    # calculate and return the total value of the hand as a list. 
     # The normal value is at index 0. If there are aces, all unique possible values will be returned as a set.
     @property
     def get_hand_values(self):
@@ -182,7 +168,7 @@ class Player:
                     best_value = value
         return best_value
     
-    # return true if the players hand value exceeds 21 and false if the player is not bust.
+    # return true if the hand value exceeds 21 and false if the entity is not bust.
     def is_bust(self):
         best_hand_value = self.get_best_hand_value()
         if best_hand_value is None or best_hand_value > 21:
@@ -190,6 +176,35 @@ class Player:
         else:
             return False
 
+
+class Player(Entity):
+    def __init__(self, id :int, balance = 1000):
+        self._id = id
+        self._hand = []
+        if balance <= 0:
+            raise ValueError(f"Player {self._id} is bankrot.")
+        else:
+            self._balance = balance
+
+    def __str__(self):
+        return f"Player {self._id} has a balance of {self._balance} with the hand: {self._hand} for a total of {self.get_best_hand_value()} is_bust = {self.is_bust()}"
+
+    def bet(self, amount :int):
+        if amount <= self._balance:
+            return amount
+        else:
+            raise ValueError(f"Player {self._id} has insufficient funds for this bet.")
+
+    # draw another card
+    def hit(self):
+        self._hand.append(draw())
+        #turn += 1
+
+    # pass on drawing (should exempt you from drawing again for the round)
+    def stay(self):
+        ...
+        #turn += 1
+        
 
     # return the amount of chips the player has on the bank
     @property
@@ -201,6 +216,24 @@ class Player:
             raise ValueError(f"Balance of player {self._id} must not be negative.")
         else:
             self._balance = value
+
+
+class Dealer(Entity):
+    def __init__(self):
+        self._hand = []
+
+    def __str__(self):
+        return f"The dealer has: {self._hand} for a total of {self.get_best_hand_value()}"
+    
+    # Deal out two cards for every player and the dealer
+    def deal(self):
+        for i in range(2):
+            for player in players:
+                player._hand.append(draw())
+            self._hand.append(draw())
+
+
+
 
 
 if __name__ == "__main__":
