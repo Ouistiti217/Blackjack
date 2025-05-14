@@ -1,8 +1,10 @@
 import sys
 import random
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Canvas
 from PIL import Image, ImageTk
+
+background = "#006400" #default ("darkgreen")
 
 ranks = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"]
 suits = ["hearts", "diamonds", "clubs", "spades"]
@@ -77,22 +79,117 @@ def main(num_decks = None, num_players = None):
     print("------------------------------------------")
 
 
-    # Create a window wiht tkinter
+    # Create a window with tkinter
     root = create_window()
+    
+    
+    # define canvases (display hands / Jetons)
+    canvases = [] # index 0 = dealer_canvas, index 1+ = player_canvas
+    dealer_canvas = tk.Canvas (root, bg=background, bd=5, highlightthickness=5, highlightbackground="darkblue")
+    canvases.append(dealer_canvas)
+    for i in range(num_players):
+        player_canvas = tk.Canvas (root, bg=background, bd=5, highlightthickness=5, highlightbackground="darkblue")
+        canvases.append(player_canvas)
+        
+        jeton_canvas = tk.Canvas(root, bg=background)
+        image_id = jeton_canvas.create_image(250, 250, )
+        canvases.append(jeton_canvas)
 
-    # Change the background colour to a random value
+    # define buttons
+    button_double = tk.Button(root, text = "double", width=20, bg="blue", fg="white")
+    button_stand = tk.Button(root, text = "stand", width=20, bg="darkred", fg="white")
+    button_hit = tk.Button(root, text = "hit", width=20, bg="green", fg="white")
+    button_split = tk.Button(root, text = "split", width=20, bg="yellow", fg="black")
+
+    # define grid
+    root.columnconfigure(0, weight=3)
+    root.columnconfigure(1, weight=7) #left_cards
+    root.columnconfigure(2, weight=1)
+    root.columnconfigure(3, weight=7) #midle_cards
+    root.columnconfigure(4, weight=1)
+    root.columnconfigure(5, weight=7) #right_cards
+    root.columnconfigure(6, weight=3)
+    root.rowconfigure(0, weight=2)
+    root.rowconfigure(1, weight=8) # dealer_cards
+    root.rowconfigure(2, weight=4) # middleground
+    root.rowconfigure(3, weight=8) # player_cards
+    root.rowconfigure(4, weight=1)
+    root.rowconfigure(5, weight=2) # buttons
+    root.rowconfigure(6, weight=2)
+
+    
+
+    
+
+    # CARD IMAGES 
+    image_paths = ["PNG-cards-1.3\\back.png"]
+    for rank in ranks:
+        for suit in suits:
+            path = f"PNG-cards-1.3\\{rank}_of_{suit}.png"
+            image_paths.append(path)
+    image_ids = []
+    tk_images = []  # references to prevent garbage collection
+    for i, path in enumerate(image_paths):
+        image = Image.open(path).resize((250, 363))
+        tk_image = ImageTk.PhotoImage(image)
+        tk_images.append(tk_image)
+
+        image_id = dealer_canvas.create_image(5 + i * 40, 50 + i * 10, anchor = tk.NW, image=tk_image)
+        image_ids.append(image_id)
+    # JETON IMAGE
+    jeton_image = Image.open("PNG-cards-1.3\\jeton.png").resize((200,200))
+    tk_jeton = ImageTk.PhotoImage(jeton_image)
+    
+    dealer_canvas.move(image_ids[0], 2110, 530)
+    dealer_canvas.tag_raise(image_ids[0]) # IMAGE0 TO FOREGROUND
+
+
+    # draw out the jeton canvas layout with provided information
+    def draw_jeton(canvas_id, balance, bet):
+        root.update()
+        canvases[canvas_id].create_image(canvases[canvas_id].winfo_width() / 2, canvases[canvas_id].winfo_height() / 2 , image = tk_jeton)
+        canvases[canvas_id].create_text(canvases[canvas_id].winfo_width() / 2, 30, text="balance: "+str(balance), font=("Arial", 25, "bold"), fill="white")
+        canvases[canvas_id].create_text(canvases[canvas_id].winfo_width() / 2, canvases[canvas_id].winfo_height() / 2, text=str(bet), font=("Arial", 25, "bold"), fill="white")
+    
+# positioning
+    dealer_canvas.grid(row=1, column=3, sticky="nsew")
+    if num_players == 1:
+        canvases[1].grid(row= 3, column=3, sticky="nsew")
+        canvases[2].grid(row=2, column=3)
+        draw_jeton(2, 5000000, 5)
+
+    if num_players == 2:
+        canvases[1].grid(row=3, column=2, sticky="nsew")
+        canvases[2].grid(row=2, column=2)
+        draw_jeton(2, 500, 44)
+        canvases[3].grid(row= 3, column=4, sticky="nsew")
+        canvases[4].grid(row=2, column=4)
+        draw_jeton(4, 33333, 200)
+    elif num_players > 2:
+        canvases[1].grid(row=3, column=1, sticky="nsew")
+        canvases[2].grid(row=2, column=1)
+        canvases[3].grid(row=3, column=3, sticky="nsew")
+        canvases[4].grid(row=2, column=3)
+        canvases[5].grid(row= 3, column=5, sticky="nsew")
+        canvases[6].grid(row=2, column=5)
+    
+
+    button_double.grid(row=5, column=3, padx= 20, pady=10, sticky="nsw")
+    button_stand.grid(row=5, column=3, padx= 20, pady=10, sticky="nse")
+    button_hit.grid(row=5, column=3, padx= 20, pady=10, sticky="ns")
+    button_split.grid(row=5, column=5, padx=20, pady=10, sticky="nsw")
+
+
+
+    # Change the background colour to a random value (global update)
     def change_bg():
-        root.configure(bg = str("#{:06x}".format(random.randint(0, 0xFFFFFF))))
+        global background
+        background = str("#{:06x}".format(random.randint(0, 0xFFFFFF)))
+        root.configure(bg = background)
+        dealer_canvas.configure(bg = background)
 
     label = ttk.Label(root, text="Moinsen", font=("Arial", 16, "bold"))
-    label.pack(pady=100)
-
-    image = Image.open(f"PNG-cards-1.3\\ace_of_clubs.png")
-    resized_img = image.resize((250, 381))
-    tk_image = ImageTk.PhotoImage(resized_img)
-    image_label = tk.Label(root, image = tk_image)
-    image_label.place(x=1000, y=50)
-
+    label.grid(row=1, column=1, pady=100)
 
 
     button = tk.Button(
@@ -103,7 +200,7 @@ def main(num_decks = None, num_players = None):
         relief = "raised",
         command = change_bg
     )
-    button.pack()
+    button.grid(row=3, column=5, padx=10, pady=10)
 
     root.mainloop()
 
@@ -111,7 +208,7 @@ def main(num_decks = None, num_players = None):
 
 
 
-
+    
 
     # Gameloop
     #while (True):
@@ -278,7 +375,8 @@ class Dealer(Entity):
 def create_window():
     root = tk.Tk()
     root.title("Blackjack")
-    root.geometry("1080x720")
+    root.geometry("1920x1080")
+    root.minsize(700, 700)
     root.configure(bg ="darkgreen")
     return root
 
